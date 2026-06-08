@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Experiência — Suite-B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --canvas: #181818;
+    --canvas-elevated: #303030;
+    --canvas-light: #ffffff;
+    --primary: #927252;
+    --ink: #ffffff;
+    --body: #969696;
+    --body-on-light: #181818;
+    --muted: #666666;
+    --hairline: rgba(255,255,255,0.08);
+    --hairline-on-light: rgba(24,24,24,0.1);
+    --bronze: #927252;
+    --sand: #c9b99a;
+    --micro: 0.6875rem;
+    --small: 0.8125rem;
+    --h1: clamp(2rem, 4.5vw, 3.25rem);
+    --display: clamp(2.75rem, 7vw, 5rem);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; font-weight: 300; background: var(--canvas); color: var(--body); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  img { display: block; max-width: 100%; }
+  .serif { font-family: 'Cormorant Garamond', serif; font-weight: 300; }
+  .tag { font-size: var(--micro); letter-spacing: 0.24em; text-transform: uppercase; font-weight: 600; color: var(--bronze); display: flex; align-items: center; gap: 0.6rem; }
+  .tag::before { content: ''; width: 28px; height: 1px; background: var(--bronze); display: block; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(.16,1,.3,1), transform 1s cubic-bezier(.16,1,.3,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 0 3rem; height: 64px; background: var(--canvas); border-bottom: 1px solid var(--hairline); }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; letter-spacing: 0.06em; color: var(--ink); font-weight: 400; text-decoration: none; }
+  .nav-logo span { color: var(--bronze); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a { font-size: var(--micro); letter-spacing: 0.065em; font-weight: 600; text-transform: uppercase; color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--ink); }
+  .nav-cta { font-size: var(--micro); letter-spacing: 0.14em; font-weight: 700; text-transform: uppercase; color: var(--ink); border: 1px solid rgba(255,255,255,0.4); padding: 0 24px; height: 48px; display: inline-flex; align-items: center; text-decoration: none; border-radius: 0; transition: border-color 0.25s; }
+  .nav-cta:hover { border-color: var(--ink); }
+  .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 0.5rem; }
+  .nav-toggle span { width: 22px; height: 1px; background: var(--ink); display: block; }
+  .nav-overlay { position: fixed; inset: 0; z-index: 300; background: var(--canvas); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.75rem; transform: translateY(-100%); transition: transform 0.55s cubic-bezier(.16,1,.3,1); }
+  .nav-overlay.open { transform: translateY(0); }
+  .nav-overlay a { font-size: 2rem; color: var(--ink); text-decoration: none; font-family: 'Cormorant Garamond', serif; font-weight: 300; }
+  .nav-overlay-cta { font-family: 'Inter', sans-serif; font-size: var(--micro); letter-spacing: 0.14em; font-weight: 700; text-transform: uppercase; border: 1px solid rgba(255,255,255,0.3); padding: 0 2rem; height: 48px; display: inline-flex; align-items: center; color: var(--ink); border-radius: 0; margin-top: 0.5rem; }
+  .nav-overlay-close { position: absolute; top: 1.75rem; right: 1.75rem; background: none; border: none; font-family: 'Cormorant Garamond', serif; font-size: 2.25rem; color: var(--ink); cursor: pointer; line-height: 1; }
+
+  /* PAGE HEADER — white editorial */
+  .page-header { background: var(--canvas-light); padding: 10rem 3rem 6rem; border-bottom: 1px solid var(--hairline-on-light); }
+  .page-header-inner { max-width: 1360px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: end; }
+  .page-header h1 { font-size: var(--display); line-height: 1.04; letter-spacing: -0.015em; font-weight: 300; color: var(--body-on-light); margin-top: 1.25rem; }
+  .page-header h1 em { font-style: italic; color: var(--bronze); }
+  .page-header-desc { padding-bottom: 0.5rem; }
+  .page-header-desc p { font-size: 1rem; color: rgba(24,24,24,0.58); max-width: 48ch; line-height: 1.7; }
+
+  /* SECTIONS */
+  .section { padding: 6rem 3rem; border-top: 1px solid var(--hairline); }
+  .section-light { background: var(--canvas-light); border-top: none; border-bottom: none; }
+  .section-light h2 { color: var(--body-on-light); }
+  .section-light p { color: rgba(24,24,24,0.58); }
+  .section-light .tag { color: var(--bronze); }
+  .section-light .tag::before { background: var(--bronze); }
+
+  /* EDITORIAL */
+  .editorial { display: grid; grid-template-columns: 1fr 1.15fr; gap: 5rem; align-items: center; max-width: 1360px; margin: 0 auto; }
+  .editorial.flip { grid-template-columns: 1.15fr 1fr; }
+  .editorial.flip .editorial-media { order: 2; }
+  .editorial.flip .editorial-text { order: 1; }
+  .editorial-text h2 { font-size: var(--h1); line-height: 1.1; margin: 1.25rem 0 1.75rem; color: var(--ink); }
+  .section-light .editorial-text h2 { color: var(--body-on-light); }
+  .editorial-text p { font-size: 0.9375rem; color: var(--body); max-width: 50ch; margin-bottom: 1.1rem; line-height: 1.65; }
+  .section-light .editorial-text p { color: rgba(24,24,24,0.58); }
+  .editorial-media { position: relative; overflow: hidden; }
+  .editorial-media img { width: 100%; height: 560px; object-fit: cover; transition: transform 1.4s cubic-bezier(.16,1,.3,1); }
+  .editorial-media:hover img { transform: scale(1.04); }
+  .editorial-media .frame-num { position: absolute; bottom: 1.5rem; left: 1.5rem; font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.3em; color: var(--ink); text-transform: uppercase; }
+
+  /* FEATURE GRID */
+  .feature-grid { max-width: 1360px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--hairline-on-light); }
+  .feature-card { padding: 3rem 2.5rem; background: var(--canvas-light); }
+  .feature-num { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; color: var(--bronze); line-height: 1; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+  .feature-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; color: var(--body-on-light); margin-bottom: 0.75rem; line-height: 1.2; }
+  .feature-card p { font-size: 0.875rem; color: rgba(24,24,24,0.55); line-height: 1.65; max-width: 32ch; }
+
+  /* PHOTO GRID */
+  .photo-grid { max-width: 1360px; margin: 4rem auto 0; display: grid; grid-template-columns: 1.2fr 1fr; grid-template-rows: auto auto; gap: 1px; background: var(--hairline); }
+  .photo-grid img { width: 100%; height: 420px; object-fit: cover; display: block; transition: transform 1.4s cubic-bezier(.16,1,.3,1); filter: brightness(0.88); }
+  .photo-grid img:hover { transform: scale(1.04); filter: brightness(1); }
+  .photo-grid .photo-tall { grid-row: span 2; }
+  .photo-grid .photo-tall img { height: 100%; min-height: 560px; }
+
+  /* CTA BAND */
+  .cta-band { padding: 7rem 3rem; text-align: center; border-top: 1px solid var(--hairline); }
+  .cta-band h2 { font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.08; margin: 1.25rem 0 1.25rem; color: var(--ink); }
+  .cta-band p { color: var(--body); margin-bottom: 2.5rem; font-size: 1rem; max-width: 48ch; margin-left: auto; margin-right: auto; }
+  .btn-outline { display: inline-flex; align-items: center; font-size: var(--micro); letter-spacing: 0.14em; font-weight: 700; text-transform: uppercase; background: transparent; color: var(--ink); border: 1px solid rgba(255,255,255,0.4); padding: 0 32px; height: 48px; border-radius: 0; text-decoration: none; transition: border-color 0.25s; font-family: 'Inter', sans-serif; }
+  .btn-outline:hover { border-color: var(--ink); }
+
+  footer { background: var(--canvas); color: var(--muted); padding: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; border-top: 1px solid var(--hairline); }
+  .f-logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--ink); letter-spacing: 0.06em; }
+  .f-logo span { color: var(--bronze); }
+  footer .f-meta { font-size: var(--micro); letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
+
+  @media (max-width: 920px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links, .nav-cta { display: none; }
+    .nav-toggle { display: flex; }
+    .page-header { padding: 7rem 1.5rem 4rem; }
+    .page-header-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .section { padding: 4rem 1.5rem; }
+    .editorial, .editorial.flip { grid-template-columns: 1fr; gap: 2.5rem; }
+    .editorial.flip .editorial-media, .editorial.flip .editorial-text { order: initial; }
+    .editorial-media img { height: 340px; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .photo-grid { grid-template-columns: 1fr; }
+    .photo-grid .photo-tall { grid-row: span 1; }
+    .photo-grid .photo-tall img { min-height: auto; height: 340px; }
+    .photo-grid img { height: 280px; }
+    footer { padding: 2rem 1.5rem; flex-direction: column; align-items: flex-start; gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="../">Suite<span>—</span>B</a>
+  <ul class="nav-links">
+    <li><a href="../#colecao">Coleção</a></li>
+    <li><a href="../experiencia/" class="active">Experiência</a></li>
+    <li><a href="../oportunidades/">Oportunidades</a></li>
+    <li><a href="../faq/">FAQ</a></li>
+  </ul>
+  <a class="nav-cta" href="../#contacto">Marcar visita</a>
+  <button class="nav-toggle" onclick="toggleNav(true)" aria-label="Abrir menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-overlay" id="nav-overlay">
+  <button class="nav-overlay-close" onclick="toggleNav(false)">×</button>
+  <a href="../#colecao" onclick="toggleNav(false)">Coleção</a>
+  <a href="../experiencia/" onclick="toggleNav(false)">Experiência</a>
+  <a href="../oportunidades/" onclick="toggleNav(false)">Oportunidades</a>
+  <a href="../faq/" onclick="toggleNav(false)">FAQ</a>
+  <a href="../#contacto" onclick="toggleNav(false)" class="nav-overlay-cta">Marcar visita</a>
+</div>
+
+<!-- White editorial header -->
+<header class="page-header">
+  <div class="page-header-inner reveal">
+    <div>
+      <div class="tag">Experiência</div>
+      <h1 class="serif">Mais do que<br>uma casa —<br>um modo de <em>vida</em>.</h1>
+    </div>
+    <div class="page-header-desc">
+      <p>As cápsulas Suite-B foram desenhadas para devolver tempo e espaço a quem as habita. Natureza, conforto e liberdade — traduzidos em arquitetura que se funde com a paisagem.</p>
+    </div>
+  </div>
+</header>
+
+<!-- Dark — editorial flip -->
+<section class="section">
+  <div class="editorial flip reveal">
+    <div class="editorial-text">
+      <div class="tag">O quotidiano</div>
+      <h2 class="serif">Acordar com a luz.<br>Dormir com silêncio.</h2>
+      <p>Acordar com a luz a entrar sem cortinas pesadas. Tomar duche a olhar para as árvores. Sentir o silêncio como um luxo, não como uma ausência.</p>
+      <p>É este o ritmo que uma cápsula Suite-B devolve — dias mais lentos, mais conscientes, mais teus. Não é um conceito de design. É uma forma de viver que existe quando o espaço está certo.</p>
+    </div>
+    <div class="editorial-media">
+      <img src="https://static.wixstatic.com/media/91ae6f_eb9ac4f95f8048d29b71f216cd673265~mv2.jpg/v1/fill/w_1100,h_1300,al_c,q_85/file.jpg" alt="Sala de estar Suite-B com vista para a natureza">
+      <span class="frame-num">I — Sala, GX 5</span>
+    </div>
+  </div>
+</section>
+
+<!-- White — 3 features -->
+<section class="section section-light">
+  <div class="tag" style="max-width:1360px;margin:0 auto 3rem;">O que distingue</div>
+  <div class="feature-grid reveal">
+    <div class="feature-card">
+      <div class="feature-num serif">01</div>
+      <h3>Silêncio</h3>
+      <p>O isolamento acústico e a ausência de ruído urbano transformam o quotidiano numa experiência de clareza — impossível de encontrar numa casa convencional.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num serif">02</div>
+      <h3>Luz natural</h3>
+      <p>Cada cápsula é pensada para maximizar a entrada de luz. Claraboias, vãos amplos e uma relação contínua entre interior e exterior que muda ao longo do dia.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num serif">03</div>
+      <h3>Paisagem</h3>
+      <p>Não escolhemos o lugar por conveniência — escolhemos pelo que existe à volta. A cápsula torna-se o enquadramento perfeito para essa escolha.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Dark — second editorial -->
+<section class="section">
+  <div class="editorial reveal">
+    <div class="editorial-text">
+      <div class="tag">Interior</div>
+      <h2 class="serif">O detalhe<br>que muda tudo.</h2>
+      <p>Mármore nas casas de banho. Madeira nos armários. Vidro temperado nas claraboias. Cada material foi escolhido não pela aparência, mas pela forma como muda a experiência de habitar.</p>
+      <p>O conforto de uma Suite-B não se descreve — sente-se. E sente-se nos primeiros cinco minutos dentro de uma cápsula.</p>
+    </div>
+    <div class="editorial-media">
+      <img src="https://static.wixstatic.com/media/91ae6f_9ea7d1df6df84346a07050b69489149e~mv2.jpg/v1/fill/w_1100,h_1300,al_c,q_85/file.jpg" alt="Casa de banho em mármore Suite-B">
+      <span class="frame-num">II — Casa de banho, GA 3</span>
+    </div>
+  </div>
+</section>
+
+<!-- Dark — photo grid -->
+<section class="section" style="padding-top:0; border-top:none;">
+  <div class="photo-grid reveal" style="overflow:hidden;">
+    <div class="photo-tall">
+      <img src="https://static.wixstatic.com/media/91ae6f_5b3f38ff20a644ea888710f921968cb2~mv2.jpg/v1/fill/w_900,h_1200,al_c,q_85/file.jpg" alt="Quarto Suite-B com luz natural">
+    </div>
+    <div>
+      <img src="https://static.wixstatic.com/media/91ae6f_2b970f49e340462c90baa8823d29acab~mv2.jpg/v1/fill/w_900,h_700,al_c,q_85/file.jpg" alt="Roupeiro embutido Suite-B">
+    </div>
+    <div>
+      <img src="https://static.wixstatic.com/media/91ae6f_4573d9e3533344efb271968a9999e1b6~mv2.jpg/v1/fill/w_900,h_700,al_c,q_85/file.jpg" alt="Interior Suite-B ao entardecer">
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-band">
+  <div class="tag" style="justify-content:center;">Próximo passo</div>
+  <h2 class="serif">Pronto para a viver?</h2>
+  <p>Explora os modelos disponíveis e descobre qual a cápsula certa para o teu projeto.</p>
+  <a class="btn-outline" href="../#colecao">Ver a coleção →</a>
+</section>
+
+<footer>
+  <div class="f-logo">Suite<span>—</span>B</div>
+  <div class="f-meta">Suite-B · Arquitetura modular · Portugal</div>
+</footer>
+
+<script>
+  function toggleNav(open) {
+    var ov = document.getElementById('nav-overlay');
+    if (open) { ov.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    else { ov.classList.remove('open'); document.body.style.overflow = ''; }
+  }
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(en) {
+      if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+</script>
+</body>
+</html>
