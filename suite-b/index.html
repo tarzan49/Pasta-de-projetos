@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suite-B — Arquitetura modular. Vida em liberdade.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --warm-white: #F7F3EC;
+    --stone: #EAE2D4;
+    --sand: #DDCEB8;
+    --concrete: #C7BEAF;
+    --charcoal: #221F1B;
+    --ink: #2B2722;
+    --bronze: #927252;
+    --forest: #545E48;
+    --line: rgba(43,39,34,0.12);
+    --display: clamp(3rem, 8.5vw, 7.25rem);
+    --h1: clamp(2.25rem, 5vw, 3.75rem);
+    --h2: clamp(1.5rem, 3vw, 2.125rem);
+    --small: 0.8125rem;
+    --micro: 0.6875rem;
+    --sp-1: 0.5rem;
+    --sp-2: 1rem;
+    --sp-3: 1.75rem;
+    --sp-4: 3rem;
+    --sp-5: 5rem;
+    --sp-6: 8rem;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--warm-white); color: var(--ink); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  img { display: block; max-width: 100%; }
+  .serif { font-family: 'Cormorant Garamond', serif; font-weight: 300; }
+  .tag { font-size: var(--micro); letter-spacing: 0.28em; text-transform: uppercase; color: var(--bronze); display: flex; align-items: center; gap: 0.6rem; }
+  .tag::before { content: ''; width: 28px; height: 1px; background: var(--bronze); display: block; }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity 1s cubic-bezier(.16,1,.3,1), transform 1.1s cubic-bezier(.16,1,.3,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 2rem 3rem; }
+  nav::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 140px; background: linear-gradient(180deg, rgba(20,18,15,0.92) 0%, rgba(20,18,15,0.78) 55%, rgba(20,18,15,0) 100%); z-index: -1; pointer-events: none; }
+  .nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; letter-spacing: 0.05em; color: #fff; text-shadow: 0 1px 12px rgba(0,0,0,0.35); }
+  .nav-logo span { color: var(--sand); }
+  .nav-links { display: flex; gap: 2.25rem; list-style: none; }
+  .nav-links a { font-size: var(--micro); letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.92); text-decoration: none; text-shadow: 0 1px 12px rgba(0,0,0,0.35); }
+  .nav-cta { font-size: var(--micro); letter-spacing: 0.2em; text-transform: uppercase; color: #fff; border: 1px solid rgba(255,255,255,0.5); padding: 0.7rem 1.5rem; text-decoration: none; text-shadow: 0 1px 12px rgba(0,0,0,0.35); }
+  .nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 0.5rem; }
+  .nav-toggle span { width: 22px; height: 1px; background: #fff; display: block; box-shadow: 0 1px 8px rgba(0,0,0,0.3); }
+  .nav-overlay { position: fixed; inset: 0; z-index: 300; background: var(--charcoal); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.75rem; transform: translateY(-100%); transition: transform 0.55s cubic-bezier(.16,1,.3,1); }
+  .nav-overlay.open { transform: translateY(0); }
+  .nav-overlay a { font-size: 2rem; color: var(--warm-white); text-decoration: none; }
+  .nav-overlay-cta { margin-top: 0.5rem; font-family: 'DM Sans', sans-serif; font-size: var(--micro); letter-spacing: 0.2em; text-transform: uppercase; border: 1px solid rgba(247,243,236,0.4); padding: 0.85rem 2rem; }
+  .nav-overlay-close { position: absolute; top: 1.75rem; right: 1.75rem; background: none; border: none; font-family: 'Cormorant Garamond', serif; font-size: 2.25rem; color: var(--warm-white); cursor: pointer; line-height: 1; }
+
+  .hero { position: relative; height: 100vh; min-height: 640px; display: flex; align-items: flex-end; overflow: hidden; }
+  .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.06); animation: heroZoom 22s ease-out forwards; }
+  @keyframes heroZoom { to { transform: scale(1); } }
+  .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(34,31,27,0.15) 0%, rgba(34,31,27,0.55) 100%); }
+  .hero-content { position: relative; z-index: 2; color: var(--warm-white); padding: 0 3rem 6rem; max-width: 920px; }
+  .hero-tag { font-size: var(--micro); letter-spacing: 0.32em; text-transform: uppercase; color: var(--sand); margin-bottom: 1.5rem; }
+  .hero-h1 { font-size: var(--display); line-height: 1.04; letter-spacing: -0.01em; margin-bottom: 1.75rem; }
+  .hero-h1 em { font-style: italic; color: var(--sand); }
+  .hero-sub { font-size: 1.0625rem; color: rgba(247,243,236,0.75); max-width: 46ch; margin-bottom: 2.5rem; font-weight: 300; }
+  .btn-line { display: inline-flex; align-items: center; gap: 0.75rem; font-size: var(--micro); letter-spacing: 0.22em; text-transform: uppercase; color: var(--warm-white); text-decoration: none; border-bottom: 1px solid rgba(247,243,236,0.4); padding-bottom: 0.5rem; background: none; border-top: none; border-left: none; border-right: none; cursor: pointer; transition: border-color 0.3s, gap 0.3s; font-family: inherit; }
+  .btn-line:hover { border-color: var(--warm-white); gap: 1.1rem; }
+  .scroll-cue { position: absolute; bottom: 2.5rem; right: 3rem; z-index: 2; color: rgba(247,243,236,0.6); font-size: var(--micro); letter-spacing: 0.2em; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; }
+  .scroll-cue::after { content: ''; width: 1px; height: 48px; background: linear-gradient(180deg, rgba(247,243,236,0.7), transparent); animation: scrollLine 2.4s ease-in-out infinite; }
+  @keyframes scrollLine { 0%,100% { transform: scaleY(0.4); transform-origin: top; } 50% { transform: scaleY(1); transform-origin: top; } }
+  .section { padding: var(--sp-6) 3rem; }
+  .section-charcoal { background: var(--charcoal); color: var(--stone); }
+  .section-charcoal .tag { color: var(--sand); }
+  .section-charcoal .tag::before { background: var(--sand); }
+  .editorial { display: grid; grid-template-columns: 1fr 1.15fr; gap: 5rem; align-items: center; max-width: 1360px; margin: 0 auto; }
+  .editorial.flip { grid-template-columns: 1.15fr 1fr; }
+  .editorial.flip .editorial-media { order: 2; }
+  .editorial.flip .editorial-text { order: 1; }
+  .editorial-text h2 { font-size: var(--h1); line-height: 1.12; margin: 1.25rem 0 1.75rem; }
+  .editorial-text p { font-size: 0.9375rem; color: rgba(43,39,34,0.62); max-width: 50ch; margin-bottom: 1.1rem; }
+  .section-charcoal .editorial-text p { color: rgba(234,226,212,0.6); }
+  .editorial-media { position: relative; overflow: hidden; }
+  .editorial-media img { width: 100%; height: 560px; object-fit: cover; transition: transform 1.4s cubic-bezier(.16,1,.3,1); }
+  .editorial-media:hover img { transform: scale(1.045); }
+  .editorial-media .frame-num { position: absolute; bottom: 1.5rem; left: 1.5rem; font-family: 'Cormorant Garamond', serif; font-size: 13px; letter-spacing: 0.3em; color: var(--warm-white); text-transform: uppercase; }
+
+  .models-head { max-width: 1360px; margin: 0 auto var(--sp-5); display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
+  .models-head h2 { font-size: var(--h1); line-height: 1.1; margin-top: 1.25rem; max-width: 18ch; }
+  .models-head p { font-size: 0.9375rem; color: rgba(43,39,34,0.55); max-width: 38ch; }
+  .model-launch-grid { max-width: 1360px; margin: 0 auto; display: grid; gap: 1.5rem; }
+  .model-launch { position: relative; display: grid; grid-template-columns: 1.2fr 1fr; min-height: 480px; overflow: hidden; background: var(--ink); cursor: pointer; }
+  .model-launch:nth-child(even) { grid-template-columns: 1fr 1.2fr; }
+  .model-launch:nth-child(even) .ml-media { order: 2; }
+  .model-launch:nth-child(even) .ml-info { order: 1; }
+  .ml-media { position: relative; overflow: hidden; }
+  .ml-media img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; transition: transform 1.6s cubic-bezier(.16,1,.3,1); }
+  .model-launch:hover .ml-media img { transform: scale(1.06); }
+  .ml-info { color: var(--warm-white); padding: 4rem; display: flex; flex-direction: column; justify-content: center; }
+  .ml-index { font-size: var(--micro); letter-spacing: 0.3em; color: var(--sand); margin-bottom: 1.5rem; }
+  .ml-name { font-size: clamp(2.5rem, 5vw, 4.25rem); line-height: 1; margin-bottom: 0.75rem; }
+  .ml-tagline { font-style: italic; font-family: 'Cormorant Garamond', serif; font-size: 1.375rem; color: var(--sand); margin-bottom: 1.5rem; }
+  .ml-desc { font-size: 0.875rem; color: rgba(247,243,236,0.55); max-width: 42ch; margin-bottom: 2rem; }
+  .ml-link { color: var(--warm-white); }
+
+  .opp-grid { max-width: 1360px; margin: var(--sp-5) auto 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .opp-card { position: relative; overflow: hidden; border-radius: 2px; cursor: default; grid-column: span 1; aspect-ratio: 3/4; }
+  .opp-card.wide { grid-column: span 2; aspect-ratio: 16/9; }
+  .opp-card img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; transition: transform 1.7s cubic-bezier(.16,1,.3,1), filter 0.7s ease; filter: brightness(0.8) saturate(0.95); }
+  .opp-card:hover img { transform: scale(1.08); filter: brightness(0.62) saturate(1.05); }
+  .opp-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(34,31,27,0) 38%, rgba(28,26,23,0.92) 100%); }
+  .opp-card-body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; padding: 1.75rem 2rem; color: var(--warm-white); transition: transform 0.6s cubic-bezier(.16,1,.3,1); }
+  .opp-card:hover .opp-card-body { transform: translateY(-4px); }
+  .opp-num { font-size: var(--micro); letter-spacing: 0.26em; text-transform: uppercase; color: var(--sand); margin-bottom: 0.5rem; }
+  .opp-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.625rem; font-weight: 400; margin-bottom: 0.4rem; line-height: 1.05; }
+  .opp-card p { font-size: 0.8125rem; color: rgba(247,243,236,0.7); max-width: 34ch; line-height: 1.55; }
+  .opp-card:hover p { opacity: 1; max-height: 6rem; margin-top: 0.4rem; }
+
+  .map-wrap { max-width: 1360px; margin: var(--sp-5) auto 0; display: grid; grid-template-columns: 1fr 1.4fr; gap: 4rem; align-items: center; }
+  .map-svg { width: 100%; height: auto; }
+  .map-pin { fill: var(--bronze); }
+  .map-pin-ring { fill: none; stroke: var(--bronze); stroke-width: 1; opacity: 0.35; }
+  .map-region-list { list-style: none; }
+  .map-region-list li { display: flex; align-items: baseline; justify-content: space-between; padding: 1.1rem 0; border-bottom: 1px solid var(--line); font-size: 0.9375rem; }
+  .map-region-list .reg-name { font-family: 'Cormorant Garamond', serif; font-size: 1.375rem; }
+  .map-region-list .reg-note { font-size: var(--small); color: rgba(43,39,34,0.45); letter-spacing: 0.04em; }
+
+  .materials-grid { max-width: 1360px; margin: var(--sp-5) auto 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(234,226,212,0.12); }
+  .material-tile { position: relative; aspect-ratio: 3/4; overflow: hidden; background: var(--ink); }
+  .material-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 1.4s cubic-bezier(.16,1,.3,1); filter: grayscale(0.15); }
+  .material-tile:hover img { transform: scale(1.07); filter: grayscale(0); }
+  .material-tile span { position: absolute; bottom: 1.1rem; left: 1.1rem; font-size: var(--micro); letter-spacing: 0.22em; text-transform: uppercase; color: var(--warm-white); }
+
+  .final-cta { position: relative; min-height: 620px; display: flex; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+  .final-cta img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .final-cta::after { content:''; position: absolute; inset: 0; background: rgba(34,31,27,0.6); }
+  .final-cta-inner { position: relative; z-index: 2; color: var(--warm-white); max-width: 720px; padding: 0 2rem; }
+  .final-cta-inner .tag { justify-content: center; color: var(--sand); }
+  .final-cta-inner .tag::before { background: var(--sand); }
+  .final-cta-inner h2 { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.08; margin: 1.5rem 0 1.5rem; }
+  .final-cta-inner p { color: rgba(247,243,236,0.7); margin-bottom: 2.25rem; font-size: 1rem; }
+
+  footer { background: var(--charcoal); color: rgba(234,226,212,0.5); padding: 4rem 3rem 2.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 2rem; }
+  footer .nav-logo { color: var(--warm-white); }
+  footer .f-links { display: flex; gap: 2rem; list-style: none; }
+  footer .f-links a { color: rgba(234,226,212,0.5); text-decoration: none; font-size: var(--small); letter-spacing: 0.05em; }
+  footer .f-meta { font-size: var(--micro); letter-spacing: 0.15em; text-transform: uppercase; color: rgba(234,226,212,0.3); }
+
+  @media (max-width: 920px) {
+    .section { padding: 4.5rem 1.5rem; }
+    .hero-content { padding: 0 1.5rem 4rem; }
+    .editorial { gap: 2.5rem; }
+    .editorial, .editorial.flip { grid-template-columns: 1fr; gap: 2.5rem; }
+    .editorial.flip .editorial-media, .editorial.flip .editorial-text { order: initial; }
+    .models-head { flex-direction: column; align-items: flex-start; gap: 1rem; }
+    .model-launch, .model-launch:nth-child(even) { grid-template-columns: 1fr; min-height: auto; }
+    .model-launch .ml-media, .model-launch:nth-child(even) .ml-media { order: initial; height: 320px; }
+    .model-launch:nth-child(even) .ml-info { order: initial; }
+    .ml-info { padding: 2.25rem 1.75rem; }
+    .opp-grid { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .opp-card, .opp-card.wide { grid-column: span 2; aspect-ratio: 4/3; }
+    .materials-grid { grid-template-columns: 1fr 1fr; }
+    .map-wrap { grid-template-columns: 1fr; gap: 2.5rem; }
+    .invest-grid, .final-cta-inner { padding-left: 0; padding-right: 0; }
+    .nav-links, .nav-cta { display: none; }
+    .nav-toggle { display: flex; }
+    .editorial-media img { height: 340px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Suite<span>—</span>B</div>
+  <ul class="nav-links">
+    <li><a href="#filosofia">Filosofia</a></li>
+    <li><a href="#colecao">Coleção</a></li>
+    <li><a href="#investimento">Investimento</a></li>
+    <li><a href="#projetos">Projetos</a></li>
+  </ul>
+  <a class="nav-cta" href="#contacto">Marcar visita</a>
+  <button class="nav-toggle" onclick="toggleNavOverlay(true)" aria-label="Abrir menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-overlay" id="nav-overlay">
+  <button class="nav-overlay-close" onclick="toggleNavOverlay(false)" aria-label="Fechar menu">×</button>
+  <a href="#filosofia" onclick="toggleNavOverlay(false)" class="serif">Filosofia</a>
+  <a href="#colecao" onclick="toggleNavOverlay(false)" class="serif">Coleção</a>
+  <a href="#investimento" onclick="toggleNavOverlay(false)" class="serif">Investimento</a>
+  <a href="#projetos" onclick="toggleNavOverlay(false)" class="serif">Projetos</a>
+  <a href="#contacto" onclick="toggleNavOverlay(false)" class="nav-overlay-cta">Marcar visita</a>
+</div>
+
+<header class="hero">
+  <img src="https://static.wixstatic.com/media/91ae6f_59c4ee8843174d829efed7696b3e60de~mv2.png/v1/fill/w_1920,h_1280,al_c,q_85/file.jpg" alt="Cápsula Suite-B integrada na paisagem costeira portuguesa">
+  <div class="hero-content">
+    <div class="hero-tag">Arquitetura modular · Portugal</div>
+    <h1 class="hero-h1 serif">A liberdade<br>tem <em>morada</em>.</h1>
+    <p class="hero-sub">Suite-B desenha cápsulas habitacionais que se fundem com a paisagem — para viver, descansar ou reinventar um lugar, em qualquer parte do mundo.</p>
+    <a class="btn-line" href="#colecao">Explorar a coleção →</a>
+  </div>
+  <div class="scroll-cue">Scroll</div>
+</header>
+
+<section class="section" id="filosofia">
+  <div class="editorial reveal">
+    <div class="editorial-text">
+      <div class="tag">Filosofia</div>
+      <h2 class="serif">Não construímos casas.<br>Desenhamos formas de viver.</h2>
+      <p>A Suite-B nasce da convicção de que a arquitetura deve servir a vida — não o contrário. Cada cápsula é pensada como uma extensão da paisagem que a recebe: linhas discretas, materiais nobres, e uma relação íntima com a luz natural.</p>
+      <p>Não vendemos módulos pré-fabricados. Oferecemos a possibilidade de recomeçar — junto ao mar, na serra, ou no recanto que sempre imaginaste — sem comprometer o lugar que escolheste para viver.</p>
+      <a class="btn-line" style="color:var(--ink); border-color:rgba(43,39,34,0.3);" href="#colecao">Conhecer a coleção →</a>
+    </div>
+    <div class="editorial-media">
+      <img src="https://static.wixstatic.com/media/91ae6f_4573d9e3533344efb271968a9999e1b6~mv2.jpg/v1/fill/w_1100,h_1300,al_c,q_85/file.jpg" alt="Interior de cápsula Suite-B com vista para o mar">
+      <span class="frame-num">I — Vista mar, GA 3</span>
+    </div>
+  </div>
+</section>
+<section class="section section-charcoal" id="colecao">
+  <div class="models-head reveal">
+    <div>
+      <div class="tag">Coleção</div>
+      <h2 class="serif">Três formas de habitar.</h2>
+    </div>
+    <p>Cada modelo Suite-B é lançado como uma peça única — pensada para um modo de vida, não apenas para uma metragem.</p>
+  </div>
+  <div class="model-launch-grid">
+    <div class="model-launch reveal" onclick="openModelModal('ga3')">
+      <div class="ml-media"><img src="https://static.wixstatic.com/media/91ae6f_59c4ee8843174d829efed7696b3e60de~mv2.png/v1/fill/w_1100,h_900,al_c,q_85/file.jpg" alt="Cápsula GA 3"></div>
+      <div class="ml-info">
+        <div class="ml-index">01 — Coleção Suite-B</div>
+        <div class="ml-name serif">GA 3</div>
+        <div class="ml-tagline">O essencial, elevado.</div>
+        <p class="ml-desc">Uma cápsula compacta para duas pessoas — onde cada centímetro foi desenhado para conforto, luz e silêncio. Mármore, madeira e vidro temperado, sem nada a mais.</p>
+        <button class="btn-line ml-link">Explorar o modelo →</button>
+      </div>
+    </div>
+    <div class="model-launch reveal" onclick="openModelModal('gx5')">
+      <div class="ml-media"><img src="https://static.wixstatic.com/media/91ae6f_b6b01ddfc22640938f6a38a4e31c0d1d~mv2.jpg/v1/fill/w_1100,h_900,al_c,q_85/file.jpg" alt="Cápsula GX 5"></div>
+      <div class="ml-info">
+        <div class="ml-index">02 — Coleção Suite-B</div>
+        <div class="ml-name serif">GX 5</div>
+        <div class="ml-tagline">Espaço para respirar.</div>
+        <p class="ml-desc">Varanda panorâmica, cozinha desenhada à medida e luz a entrar de todos os ângulos. Para quem procura mais espaço sem perder intimidade com a paisagem.</p>
+        <button class="btn-line ml-link">Explorar o modelo →</button>
+      </div>
+    </div>
+    <div class="model-launch reveal" onclick="openModelModal('gx7')">
+      <div class="ml-media"><img src="https://static.wixstatic.com/media/91ae6f_11cfa300019c42f0bda71937c3a4ff4f~mv2.jpg/v1/fill/w_1100,h_900,al_c,q_85/file.jpg" alt="Cápsula GX 7"></div>
+      <div class="ml-info">
+        <div class="ml-index">03 — Coleção Suite-B</div>
+        <div class="ml-name serif">GX 7</div>
+        <div class="ml-tagline">A escala da liberdade.</div>
+        <p class="ml-desc">A maior expressão da coleção — pensada para projetos que precisam de presença e de espaço, mantendo a mesma atenção ao detalhe das cápsulas mais pequenas.</p>
+        <button class="btn-line ml-link">Explorar o modelo →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="editorial flip reveal">
+    <div class="editorial-text">
+      <div class="tag">Experiência</div>
+      <h2 class="serif">Mais do que uma casa —<br>um modo de vida.</h2>
+      <p>Acordar com a luz a entrar sem cortinas pesadas. Tomar duche a olhar para as árvores. Sentir o silêncio como um luxo, não como uma ausência.</p>
+      <p>As cápsulas Suite-B foram desenhadas para devolver tempo e espaço a quem as habita — natureza, conforto e liberdade, traduzidos em arquitetura.</p>
+    </div>
+    <div class="editorial-media">
+      <img src="https://static.wixstatic.com/media/91ae6f_eb9ac4f95f8048d29b71f216cd673265~mv2.jpg/v1/fill/w_1100,h_1300,al_c,q_85/file.jpg" alt="Sala de estar de cápsula Suite-B com vista para a natureza">
+      <span class="frame-num">II — Sala, GX 5</span>
+    </div>
+  </div>
+</section>
+<section class="section section-charcoal" id="investimento">
+  <div class="editorial reveal" style="grid-template-columns: 1fr;max-width:760px;">
+    <div class="editorial-text">
+      <div class="tag">Oportunidade</div>
+      <h2 class="serif">Uma estrutura. Muitas formas de a viver.</h2>
+      <p>A versatilidade é uma das maiores forças de uma cápsula Suite-B. A mesma arquitetura modular pode responder a necessidades muito diferentes — sem nunca perder identidade, conforto ou qualidade de construção.</p>
+      <p>Eis algumas das formas como municípios, empresas, projetos turísticos e particulares já estão a integrar a Suite-B nos seus planos.</p>
+    </div>
+  </div>
+  <div class="opp-grid reveal">
+    <div class="opp-card wide">
+      <img src="https://static.wixstatic.com/media/91ae6f_11cfa300019c42f0bda71937c3a4ff4f~mv2.jpg/v1/fill/w_1200,h_675,al_c,q_85/file.jpg" alt="Cápsula Suite-B aplicada a projetos municipais">
+      <div class="opp-card-body">
+        <div class="opp-num">01 — Municípios</div>
+        <h3 class="serif">Municípios</h3>
+        <p>Habitação para estudantes e resposta rápida a situações de emergência — unidades prontas a instalar onde a necessidade é urgente.</p>
+      </div>
+    </div>
+    <div class="opp-card">
+      <img src="https://static.wixstatic.com/media/91ae6f_b6b01ddfc22640938f6a38a4e31c0d1d~mv2.jpg/v1/fill/w_700,h_950,al_c,q_85/file.jpg" alt="Cápsula Suite-B para alojamento de eventos e festivais">
+      <div class="opp-card-body">
+        <div class="opp-num">02 — Eventos</div>
+        <h3 class="serif">Eventos &amp; festivais</h3>
+        <p>Alojamento temporário para equipas e participantes, com o conforto de uma estrutura pensada ao detalhe.</p>
+      </div>
+    </div>
+    <div class="opp-card">
+      <img src="https://static.wixstatic.com/media/91ae6f_59c4ee8843174d829efed7696b3e60de~mv2.png/v1/fill/w_700,h_950,al_c,q_85/file.jpg" alt="Cápsula Suite-B em contexto rural para trabalhadores agrícolas">
+      <div class="opp-card-body">
+        <div class="opp-num">03 — Mercado agrícola</div>
+        <h3 class="serif">Mercado agrícola</h3>
+        <p>Habitação para trabalhadores sazonais, instalada junto ao local de trabalho — com dignidade e conforto.</p>
+      </div>
+    </div>
+    <div class="opp-card wide">
+      <img src="https://static.wixstatic.com/media/91ae6f_eb9ac4f95f8048d29b71f216cd673265~mv2.jpg/v1/fill/w_1200,h_675,al_c,q_85/file.jpg" alt="Cápsula Suite-B em contexto de turismo e glamping">
+      <div class="opp-card-body">
+        <div class="opp-num">04 — Turismo</div>
+        <h3 class="serif">Turismo</h3>
+        <p>Glamping, parques de campismo e alojamento local com identidade própria — experiências que se distinguem pelo design.</p>
+      </div>
+    </div>
+    <div class="opp-card wide">
+      <img src="https://static.wixstatic.com/media/91ae6f_4573d9e3533344efb271968a9999e1b6~mv2.jpg/v1/fill/w_1200,h_675,al_c,q_85/file.jpg" alt="Cápsula Suite-B como alojamento empresarial e escritório temporário">
+      <div class="opp-card-body">
+        <div class="opp-num">05 — Empresas</div>
+        <h3 class="serif">Empresas</h3>
+        <p>Alojamento para colaboradores e escritórios temporários — soluções rápidas, sem comprometer o conforto ou a imagem.</p>
+      </div>
+    </div>
+    <div class="opp-card">
+      <img src="https://static.wixstatic.com/media/91ae6f_5b3f38ff20a644ea888710f921968cb2~mv2.jpg/v1/fill/w_700,h_950,al_c,q_85/file.jpg" alt="Cápsula Suite-B como anexo, casa de férias ou estúdio particular">
+      <div class="opp-card-body">
+        <div class="opp-num">06 — Particulares</div>
+        <h3 class="serif">Particulares</h3>
+        <p>Anexos, casas de férias, alojamento para a família ou um estúdio só teu — a extensão perfeita de qualquer espaço.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="projetos">
+  <div class="tag" style="max-width:1360px;margin:0 auto;">Onde estamos</div>
+  <div class="map-wrap">
+    <svg class="map-svg" viewBox="0 0 200 320" xmlns="http://www.w3.org/2000/svg">
+      <path d="M60 10 L150 25 L165 90 L150 160 L165 230 L130 300 L75 310 L45 250 L55 170 L35 95 Z" fill="none" stroke="rgba(43,39,34,0.18)" stroke-width="1"/>
+      <g>
+        <circle class="map-pin-ring" cx="92" cy="55" r="9"><animate attributeName="r" values="6;14;6" dur="3.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3.4s" repeatCount="indefinite"/></circle>
+        <circle class="map-pin" cx="92" cy="55" r="3.5"/>
+      </g>
+      <g>
+        <circle class="map-pin-ring" cx="78" cy="150" r="9"><animate attributeName="r" values="6;14;6" dur="3.4s" begin="0.7s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3.4s" begin="0.7s" repeatCount="indefinite"/></circle>
+        <circle class="map-pin" cx="78" cy="150" r="3.5"/>
+      </g>
+      <g>
+        <circle class="map-pin-ring" cx="70" cy="225" r="9"><animate attributeName="r" values="6;14;6" dur="3.4s" begin="1.4s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3.4s" begin="1.4s" repeatCount="indefinite"/></circle>
+        <circle class="map-pin" cx="70" cy="225" r="3.5"/>
+      </g>
+      <g>
+        <circle class="map-pin-ring" cx="100" cy="280" r="9"><animate attributeName="r" values="6;14;6" dur="3.4s" begin="2.1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.5;0;0.5" dur="3.4s" begin="2.1s" repeatCount="indefinite"/></circle>
+        <circle class="map-pin" cx="100" cy="280" r="3.5"/>
+      </g>
+    </svg>
+    <div class="reveal">
+      <h2 class="serif" style="font-size:var(--h1);margin-bottom:1.5rem;">Portugal é o nosso ponto de partida.</h2>
+      <p style="font-size:0.9375rem;color:rgba(43,39,34,0.55);max-width:48ch;margin-bottom:2rem;">Da costa atlântica ao interior serrano, cada região oferece uma relação diferente com a luz, o clima e a paisagem — e cada cápsula Suite-B é adaptada a essa relação.</p>
+      <ul class="map-region-list">
+        <li><span class="reg-name serif">Norte &amp; Douro</span><span class="reg-note">Vales, vinha, serra</span></li>
+        <li><span class="reg-name serif">Centro &amp; Costa de Prata</span><span class="reg-note">Pinhal, oceano, silêncio</span></li>
+        <li><span class="reg-name serif">Alentejo</span><span class="reg-note">Planície, horizonte, luz</span></li>
+        <li><span class="reg-name serif">Algarve</span><span class="reg-note">Falésias, mar, clima ameno</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<section class="section section-charcoal">
+  <div class="tag" style="max-width:1360px;margin:0 auto;">Materialidade</div>
+  <h2 class="serif" style="max-width:1360px;margin:1.25rem auto 0;font-size:var(--h1);">O detalhe é o que distingue.</h2>
+  <div class="materials-grid reveal">
+    <div class="material-tile"><img src="https://static.wixstatic.com/media/91ae6f_2b970f49e340462c90baa8823d29acab~mv2.jpg/v1/fill/w_640,h_850,al_c,q_85/file.jpg" alt="Detalhe de roupeiro em madeira"><span>Madeira &amp; têxteis</span></div>
+    <div class="material-tile"><img src="https://static.wixstatic.com/media/91ae6f_9ea7d1df6df84346a07050b69489149e~mv2.jpg/v1/fill/w_640,h_850,al_c,q_85/file.jpg" alt="Detalhe de casa de banho em mármore"><span>Mármore &amp; cerâmica</span></div>
+    <div class="material-tile"><img src="https://static.wixstatic.com/media/91ae6f_5b3f38ff20a644ea888710f921968cb2~mv2.jpg/v1/fill/w_640,h_850,al_c,q_85/file.jpg" alt="Detalhe de quarto com têxteis claros"><span>Luz &amp; conforto</span></div>
+    <div class="material-tile"><img src="https://static.wixstatic.com/media/91ae6f_dfe377886db94861aaf4bd44e4782d45~mv2.jpg/v1/fill/w_640,h_850,al_c,q_85/file.jpg" alt="Estrutura modular Suite-B"><span>Estrutura &amp; forma</span></div>
+  </div>
+</section>
+
+<section class="final-cta" id="contacto">
+  <img src="https://static.wixstatic.com/media/91ae6f_4573d9e3533344efb271968a9999e1b6~mv2.jpg/v1/fill/w_1920,h_1280,al_c,q_85/file.jpg" alt="Interior de cápsula Suite-B ao entardecer">
+  <div class="final-cta-inner reveal">
+    <div class="tag">Próximo passo</div>
+    <h2 class="serif">Pronto para a viver?</h2>
+    <p>Agenda uma visita privada e descobre, de perto, o que significa viver em liberdade — com tempo, sem pressa, à tua medida.</p>
+    <a class="btn-line" href="mailto:geral@suite-b.com">Marcar visita privada →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="nav-logo">Suite<span style="color:var(--bronze);">—</span>B</div>
+  <ul class="f-links">
+    <li><a href="#filosofia">Filosofia</a></li>
+    <li><a href="#colecao">Coleção</a></li>
+    <li><a href="#investimento">Investimento</a></li>
+    <li><a href="#projetos">Projetos</a></li>
+  </ul>
+  <div class="f-meta">Suite-B · Arquitetura modular · Portugal</div>
+</footer>
+<style>
+  .model-modal { position: fixed; inset: 0; z-index: 200; background: rgba(34,31,27,0.78); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; padding: 2.5rem; }
+  .model-modal.open { display: flex; }
+  .model-modal-panel { background: var(--warm-white); max-width: 1080px; width: 100%; max-height: 88vh; overflow-y: auto; position: relative; display: grid; grid-template-columns: 1fr 1fr; }
+  .model-modal-close { position: absolute; top: 1.25rem; right: 1.5rem; z-index: 5; background: none; border: none; font-size: 2rem; line-height: 1; color: var(--ink); cursor: pointer; font-family: 'Cormorant Garamond', serif; }
+  .model-modal-media { display: grid; grid-template-rows: 1fr 1fr; }
+  .model-modal-media > div { position: relative; overflow: hidden; }
+  .model-modal-media img { width: 100%; height: 100%; object-fit: cover; min-height: 220px; }
+  .model-modal-media .media-label { position: absolute; bottom: 0.85rem; left: 0.85rem; font-size: var(--micro); letter-spacing: 0.2em; text-transform: uppercase; color: var(--warm-white); background: rgba(34,31,27,0.5); padding: 0.3rem 0.7rem; }
+  .model-modal-body { padding: 3rem 2.75rem; }
+  .model-modal-name { font-family: 'Cormorant Garamond', serif; font-size: 2.75rem; line-height: 1; }
+  .model-modal-tag { font-style: italic; font-family: 'Cormorant Garamond', serif; color: var(--bronze); font-size: 1.125rem; margin: 0.5rem 0 1.25rem; }
+  .model-modal-desc { font-size: 0.9375rem; color: rgba(43,39,34,0.62); margin-bottom: 1.5rem; }
+  .model-modal-specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1.25rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 1.75rem; }
+  .model-modal-specs div { display: flex; flex-direction: column; }
+  .model-modal-specs .mm-spec-val { font-family: 'Cormorant Garamond', serif; font-size: 1.375rem; }
+  .model-modal-specs .mm-spec-key { font-size: 0.6875rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(43,39,34,0.45); margin-top: 0.2rem; }
+  .model-modal-section-title { font-size: var(--micro); letter-spacing: 0.24em; text-transform: uppercase; color: var(--bronze); margin: 1.75rem 0 0.9rem; }
+  .model-modal-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+  .model-modal-gallery img { width: 100%; height: 110px; object-fit: cover; }
+  .model-modal-equip-grid { display: grid; gap: 0.85rem; font-size: 0.8125rem; color: rgba(43,39,34,0.6); }
+  .model-modal-equip-grid b { color: var(--ink); font-weight: 500; display: block; margin-bottom: 0.25rem; font-size: 0.75rem; letter-spacing: 0.05em; text-transform: uppercase; }
+  @media (max-width: 760px) {
+    .model-modal-panel { grid-template-columns: 1fr; }
+    .model-modal-media { grid-template-rows: 1fr 1fr; min-height: 280px; }
+  }
+</style>
+
+<div class="model-modal" id="model-modal" onclick="if(event.target===this) closeModelModal()">
+  <div class="model-modal-panel">
+    <button class="model-modal-close" onclick="closeModelModal()" aria-label="Fechar">×</button>
+    <div class="model-modal-media">
+      <div><img id="mm-photo" src="" alt=""><span class="media-label">Exterior</span></div>
+      <div><img id="mm-plan" src="" alt=""><span class="media-label">Planta</span></div>
+    </div>
+    <div class="model-modal-body">
+      <div class="model-modal-name serif" id="mm-name"></div>
+      <div class="model-modal-tag" id="mm-tag"></div>
+      <p class="model-modal-desc" id="mm-desc"></p>
+      <div class="model-modal-specs" id="mm-specs"></div>
+      <div class="model-modal-section-title">Interior</div>
+      <div class="model-modal-gallery" id="mm-gallery"></div>
+      <div class="model-modal-section-title">Equipamento</div>
+      <div class="model-modal-equip-grid" id="mm-equip"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var MODELOS = {
+    ga3: {
+      nome: 'GA 3',
+      tag: 'O essencial, elevado.',
+      foto: 'https://static.wixstatic.com/media/91ae6f_59c4ee8843174d829efed7696b3e60de~mv2.png/v1/fill/w_900,h_700,al_c,q_85/file.jpg',
+      planta: 'https://static.wixstatic.com/media/91ae6f_4e3b32010d1845e08085e870babdcf2c~mv2.jpg/v1/fill/w_900,h_700,al_c,q_85/file.jpg',
+      desc: 'Uma cápsula compacta pensada para duas pessoas, onde cada centímetro foi desenhado para conforto, luz e silêncio. Estrutura em aço galvanizado com revestimento em alumínio e isolamento impermeável.',
+      specs: [
+        ['15,7 m²', 'Área construída'],
+        ['2 pessoas', 'Capacidade'],
+        ['≈ 4 toneladas', 'Peso líquido'],
+        ['5600×2800×3100 mm', 'Dimensões (C×L×A)'],
+        ['6,7 / 11,2 kW', 'Consumo (c/ aquec. piso)'],
+        ['Aço galvanizado', 'Estrutura']
+      ],
+      interior: [
+        ['https://static.wixstatic.com/media/91ae6f_4573d9e3533344efb271968a9999e1b6~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Quarto, vista mar'],
+        ['https://static.wixstatic.com/media/91ae6f_9ea7d1df6df84346a07050b69489149e~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Casa de banho, mármore'],
+        ['https://static.wixstatic.com/media/91ae6f_2b970f49e340462c90baa8823d29acab~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Roupeiro embutido']
+      ],
+      equip: {
+        'Casa de banho': 'Cabine em mármore, lavatório, bancada e espelho',
+        'Climatização': 'Ar condicionado e aquecedor de água elétrico',
+        'Iluminação & instalações': 'Sistema de iluminação, hidráulico e elétrico completo'
+      }
+    },
+    gx5: {
+      nome: 'GX 5',
+      tag: 'Espaço para respirar.',
+      foto: 'https://static.wixstatic.com/media/91ae6f_b6b01ddfc22640938f6a38a4e31c0d1d~mv2.jpg/v1/fill/w_900,h_700,al_c,q_85/file.jpg',
+      planta: 'https://static.wixstatic.com/media/91ae6f_dfe377886db94861aaf4bd44e4782d45~mv2.jpg/v1/fill/w_900,h_700,al_c,q_85/file.jpg',
+      desc: 'Acrescenta varanda panorâmica, claraboia em vidro temperado laminado duplo e porta lateral em aço inoxidável. Cozinha personalizada e casa de banho equipada — espaço, luz e privacidade em equilíbrio.',
+      specs: [
+        ['30,4 m²', 'Área construída'],
+        ['2-4 pessoas', 'Capacidade'],
+        ['≈ 6,5 toneladas', 'Peso líquido'],
+        ['9500×3200×3200 mm', 'Dimensões (C×L×A)'],
+        ['6,7 / 11,2 kW', 'Consumo (c/ aquec. piso)'],
+        ['Varanda panorâmica', 'Diferencial']
+      ],
+      interior: [
+        ['https://static.wixstatic.com/media/91ae6f_eb9ac4f95f8048d29b71f216cd673265~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Sala de estar'],
+        ['https://static.wixstatic.com/media/91ae6f_5b3f38ff20a644ea888710f921968cb2~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Quarto'],
+        ['https://static.wixstatic.com/media/91ae6f_9ea7d1df6df84346a07050b69489149e~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Casa de banho']
+      ],
+      equip: {
+        'Exterior': 'Varanda panorâmica, claraboia em vidro duplo, porta lateral em aço inoxidável',
+        'Cozinha': 'Personalizada — exaustor, fogão de indução e frigorífico',
+        'Casa de banho': 'Lavatório, bancada e espelho'
+      }
+    },
+    gx7: {
+      nome: 'GX 7',
+      tag: 'A escala da liberdade.',
+      foto: 'https://static.wixstatic.com/media/91ae6f_11cfa300019c42f0bda71937c3a4ff4f~mv2.jpg/v1/fill/w_900,h_700,al_c,q_85/file.jpg',
+      planta: 'https://static.wixstatic.com/media/91ae6f_14bb5c1f4c934edbace0501fca02ba74~mv2.jpg/v1/fill/w_900,h_700,al_c,q_85/file.jpg',
+      desc: 'A maior expressão da coleção — a mesma configuração premium da GX 5, com mais espaço e o pacote de acessórios para transporte: pernas de apoio, olhal de elevação, fixadores e embalagem própria.',
+      specs: [
+        ['36,8 m²', 'Área construída'],
+        ['2-4 pessoas', 'Capacidade'],
+        ['≈ 8 toneladas', 'Peso líquido'],
+        ['11500×3200×3200 mm', 'Dimensões (C×L×A)'],
+        ['9,9 / 14,5 kW', 'Consumo (c/ aquec. piso)'],
+        ['Kit de transporte', 'Incluído']
+      ],
+      interior: [
+        ['https://static.wixstatic.com/media/91ae6f_eb9ac4f95f8048d29b71f216cd673265~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Sala de estar'],
+        ['https://static.wixstatic.com/media/91ae6f_5b3f38ff20a644ea888710f921968cb2~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Quarto'],
+        ['https://static.wixstatic.com/media/91ae6f_2b970f49e340462c90baa8823d29acab~mv2.jpg/v1/fill/w_500,h_360,al_c,q_85/file.jpg','Roupeiro embutido']
+      ],
+      equip: {
+        'Exterior': 'Varanda panorâmica, claraboia em vidro duplo, porta lateral em aço inoxidável',
+        'Cozinha': 'Personalizada — exaustor, fogão de indução e frigorífico',
+        'Transporte': 'Pernas de apoio, olhal de elevação, fixadores e embalagem própria'
+      }
+    }
+  };
+
+  function openModelModal(id) {
+    var m = MODELOS[id];
+    if (!m) return;
+    document.getElementById('mm-photo').src = m.foto;
+    document.getElementById('mm-photo').alt = 'Cápsula ' + m.nome + ' — exterior';
+    document.getElementById('mm-plan').src = m.planta;
+    document.getElementById('mm-plan').alt = 'Planta da cápsula ' + m.nome;
+    document.getElementById('mm-name').textContent = m.nome;
+    document.getElementById('mm-tag').textContent = m.tag;
+    document.getElementById('mm-desc').textContent = m.desc;
+    var specsHtml = '';
+    m.specs.forEach(function(s){
+      specsHtml += '<div><span class="mm-spec-val serif">' + s[0] + '</span><span class="mm-spec-key">' + s[1] + '</span></div>';
+    });
+    document.getElementById('mm-specs').innerHTML = specsHtml;
+    var galleryHtml = '';
+    m.interior.forEach(function(g){
+      galleryHtml += '<img src="' + g[0] + '" alt="' + g[1] + ' — ' + m.nome + '">';
+    });
+    document.getElementById('mm-gallery').innerHTML = galleryHtml;
+    var equipHtml = '';
+    Object.keys(m.equip).forEach(function(k){
+      equipHtml += '<div><b>' + k + '</b>' + m.equip[k] + '</div>';
+    });
+    document.getElementById('mm-equip').innerHTML = equipHtml;
+    document.getElementById('model-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModelModal() {
+    document.getElementById('model-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function toggleNavOverlay(open) {
+    var ov = document.getElementById('nav-overlay');
+    if (open) { ov.classList.add('open'); document.body.style.overflow = 'hidden'; }
+    else { ov.classList.remove('open'); document.body.style.overflow = ''; }
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') closeModelModal();
+  });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.16 });
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+</script>
+</body>
+</html>

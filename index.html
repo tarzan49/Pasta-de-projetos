@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Os meus projetos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14120f;
+    --card: #1c1a16;
+    --warm-white: #F7F3EC;
+    --bronze: #927252;
+    --line: rgba(247,243,236,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    background: var(--bg);
+    color: var(--warm-white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5rem 1.5rem;
+  }
+  header { text-align: center; margin-bottom: 3.5rem; }
+  header .tag { font-size: 0.6875rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--bronze); margin-bottom: 0.75rem; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(2.25rem, 6vw, 3.5rem); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 920px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 2.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.3s, transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .card:hover { border-color: var(--bronze); transform: translateY(-3px); }
+  .card .label { font-size: 0.6875rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--bronze); }
+  .card h2 { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 1.875rem; }
+  .card p { font-size: 0.875rem; color: rgba(247,243,236,0.6); line-height: 1.6; }
+  .card .link { margin-top: 0.5rem; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--warm-white); border-bottom: 1px solid rgba(247,243,236,0.35); align-self: flex-start; padding-bottom: 0.25rem; }
+  footer { margin-top: 4rem; font-size: 0.75rem; color: rgba(247,243,236,0.35); letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+  <header>
+    <div class="tag">Portefólio</div>
+    <h1>Os meus projetos</h1>
+  </header>
+  <div class="grid">
+    <a class="card" href="https://cleansolutions.com.pt" target="_blank" rel="noopener">
+      <div class="label">Site ao vivo</div>
+      <h2>Kyro Clean Solutions</h2>
+      <p>Site de conversão para empresa de higienização de estofos premium — quiz de orçamento, SEO massivo e CRM integrado.</p>
+      <span class="link">Ver site →</span>
+    </a>
+    <a class="card" href="./suite-b/index.html">
+      <div class="label">Mockup</div>
+      <h2>Suite-B</h2>
+      <p>Landing page para marca de arquitetura modular — cápsulas habitacionais que se fundem com a paisagem portuguesa.</p>
+      <span class="link">Ver mockup →</span>
+    </a>
+  </div>
+  <footer>Atualizado em 2026-06-08</footer>
+</body>
+</html>
